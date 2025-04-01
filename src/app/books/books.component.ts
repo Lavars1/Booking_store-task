@@ -3,12 +3,14 @@ import {Book} from '../booksInterface';
 import {BookstoreService} from '../bookstoreService';
 import {Pageble} from '../pageble';
 import {CurrencyPipe, DatePipe} from '@angular/common';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-books',
   imports: [
     CurrencyPipe,
-    DatePipe
+    DatePipe,
+    RouterLink
   ],
   templateUrl: './books.component.html',
   styleUrl: './books.component.scss'
