@@ -1,0 +1,51 @@
+<div class="books-container">
+  <div class="pagination-header">
+    <h2>Book List</h2>
+    @if (pageBooks) {
+      <div class="pagination-info">
+        Page {{ pageBooks.page }} of {{ pageBooks.total_pages }}
+        (Total: {{ pageBooks.total_items }} books)
+      </div>
+    }
+  </div>
+
+  @if (error) {
+    <div class="error-message">
+      {{ error }}
+    </div>
+  }
+
+  @if (pageBooks) {
+    <div class="book-list">
+      @for (book of pageBooks.result; track book.id) {
+        <div class="book-card">
+          <h3>{{ book.title }}</h3>
+          <div class="book-details">
+            <span class="price">{{ book.price | currency }}</span>
+            <span class="stock" [class.low-stock]="book.in_stock < 10">
+              Stock: {{ book.in_stock }}
+            </span>
+          </div>
+          <p class="release-date">Released: {{ book.release_date | date }}</p>
+          <p class="description">{{ book.description }}</p>
+        </div>
+      }
+    </div>
+
+    <div class="pagination-controls">
+      <button
+        (click)="loadPrevPage()"
+        [disabled]="!pageBooks.links.previous">
+        Previous Page
+      </button>
+
+      <span>Page {{ pageBooks.page }} of {{ pageBooks.total_pages }}</span>
+
+      <button
+        (click)="loadNextPage()"
+        [disabled]="!pageBooks.links.next">
+        Next Page
+      </button>
+    </div>
+  }
+</div>
