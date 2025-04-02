@@ -1,25 +1,32 @@
 :host {
   .main-h {
+    width: 75%;
+    justify-self: center;
     color: #2c3e50;
     font-size: 28px;
     margin-bottom: 20px;
     text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
   }
 
-  h2 {
-    display: flex;
+  nav {
+    display: grid;
+    gap: 16px;
     justify-content: center;
-    margin-bottom: 30px;
+    font-size: 20px;
+  }
 
-    a {
-      color: #3498db;
-      text-decoration: none;
-      font-weight: bold;
-      transition: color 0.3s ease;
+  a {
+    justify-self: center;
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
 
-      &:hover {
-        color: #2980b9;
-      }
+    &:hover {
+      color: #2980b9;
     }
   }
 }
+

@@ -1,0 +1,66 @@
+<div class="container">
+  <div class="pagination-header">
+    <h3>
+      <a routerLink="">to Main page</a>
+    </h3>
+    <h2>Genres</h2>
+    @if (pageGenres) {
+      <div class="pagination-info">
+        Page {{ pageGenres.page }} of {{ pageGenres.total_pages }}
+        (Total: {{ pageGenres.total_items }} genres)
+      </div>
+    }
+  </div>
+
+  <div class="genre-form">
+    <h3>Add New Genre</h3>
+    <form [formGroup]="genreForm" (ngSubmit)="addGenre()">
+      <input
+        type="text"
+        formControlName="title"
+        placeholder="Title"
+        required
+      />
+      <input
+        type="text"
+        formControlName="description"
+        placeholder="Description"
+        required
+      />
+      <input
+        type="number"
+        formControlName="discount"
+        placeholder="Discount (%)"
+      />
+      <button type="submit" [disabled]="genreForm.invalid">Add Genre</button>
+    </form>
+  </div>
+
+  @if (pageGenres) {
+    <ul class="genre-list">
+      @for (genre of pageGenres.result; track genre.id) {
+        <li class="genre-item">
+          <h3 class="genre-title">Title: {{ genre.title }}</h3>
+          <p class="genre-description">Description: {{ genre.description }}</p>
+          <span class="genre-discount" [class.no-discount]="genre.discount === 0">
+            Discount: {{ genre.discount }}%
+          </span>
+        </li>
+      }
+    </ul>
+
+    <div class="pagination-controls">
+      <button
+        (click)="loadPrevGenresPage()"
+        [disabled]="!pageGenres.links.previous">
+        Previous page
+      </button>
+      <span>Page {{ pageGenres.page }} of {{ pageGenres.total_pages }}</span>
+      <button
+        (click)="loadNextGenresPage()"
+        [disabled]="!pageGenres.links.next">
+        Next page
+      </button>
+    </div>
+  }
+</div>

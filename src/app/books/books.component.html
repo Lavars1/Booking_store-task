@@ -1,4 +1,4 @@
-<div class="books-container">
+<div class="container">
   <div class="pagination-header">
     <h3>
       <a routerLink="">to Main page</a>
@@ -25,28 +25,26 @@
           <h3>{{ book.title }}</h3>
           <div class="book-details">
             <span class="price">{{ book.price | currency }}</span>
-            <span class="stock" [class.low-stock]="book.in_stock < 10">
-              Stock: {{ book.in_stock }}
+            <span class="stock" [class.low-stock]="(book.in_stock ?? 0) < 10">
+              Stock: {{ book.in_stock ?? 0 }}
             </span>
           </div>
           <p class="release-date">Released: {{ book.release_date | date }}</p>
           <p class="description">{{ book.description }}</p>
+          <p class="author">Author: {{ getAuthor(book) }}</p>
+          <p class="genres">Genres: {{ getGenres(book) }}</p>
         </div>
       }
     </div>
 
     <div class="pagination-controls">
-      <button
-        (click)="loadPrevPage()"
-        [disabled]="!pageBooks.links.previous">
+      <button (click)="loadPrevPage()" [disabled]="!pageBooks.links.previous">
         Previous Page
       </button>
 
       <span>Page {{ pageBooks.page }} of {{ pageBooks.total_pages }}</span>
 
-      <button
-        (click)="loadNextPage()"
-        [disabled]="!pageBooks.links.next">
+      <button (click)="loadNextPage()" [disabled]="!pageBooks.links.next">
         Next Page
       </button>
     </div>

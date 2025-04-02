@@ -1,0 +1,59 @@
+<div class="container">
+    <div class="pagination-header">
+        <h3>
+            <a routerLink="">to Main page</a>
+        </h3>
+        <h2>Authors</h2>
+        @if (pageAuthors){
+            <div class="pagination-info">
+                Всего авторов: {{ pageAuthors.total_items }}
+            </div>
+        }
+    </div>
+
+    <div class="author-form">
+        <span>Add New Author</span>
+        <form [formGroup]="authorForm" (ngSubmit)="addAuthor()">
+            <input
+                    type="text"
+                    formControlName="first_name"
+                    placeholder="First name"
+                    required
+            />
+            <input
+                    type="text"
+                    formControlName="second_name"
+                    placeholder="Last name"
+                    required
+            />
+            <button type="submit" [disabled]="authorForm.invalid">Add Author</button>
+        </form>
+    </div>
+
+    @if (pageAuthors) {
+        <ul class="author-list">
+            @for (author of pageAuthors.result; track author.id) {
+                <li class="author-card">
+                    <h3 class="author-name first-name">First name: {{ author.first_name }}</h3>
+                    <h3 class="author-name last-name">Last name: {{ author.second_name }}</h3>
+                </li>
+            }
+        </ul>
+
+        <div class="pagination-controls">
+            <button
+                    (click)="loadPrevAuthorsPage()"
+                    [disabled]="!pageAuthors.links.previous">
+                Previous page
+            </button>
+            <span class="page-info">
+        Page {{ pageAuthors.page }} of {{ pageAuthors.total_pages }}
+      </span>
+            <button
+                    (click)="loadNextAuthorsPage()"
+                    [disabled]="!pageAuthors.links.next">
+                Next page
+            </button>
+        </div>
+    }
+</div>
