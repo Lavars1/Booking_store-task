@@ -1,33 +1,45 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Book, Author, Genre } from '../interfaces';
-import { BookstoreService } from '../bookstoreService';
-import { Pageble } from '../pageble';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { Book, Author, Genre } from '../interfaces';
+import { Pageble } from '../pageble';
+import {BookstoreService} from '../bookstoreService';
 
 @Component({
   selector: 'app-books',
-  imports: [CurrencyPipe, DatePipe, RouterLink],
   templateUrl: './books.component.html',
-  styleUrl: './books.component.scss'
+  styleUrls: ['./books.component.scss'],
+  imports: [CurrencyPipe, DatePipe, RouterLink]
 })
 export class BooksComponent implements OnInit {
-  booksService = inject(BookstoreService)
+  pageBooks: Pageble<Book[]> | null = null;
+  authors: Record<number, Author> = {};
+  genres: Record<number, Genre> = {};
+  error: string | null = null;
+  currentPage: number = 1;
 
-  pageBooks: Pageble<Book[]> | null = null
-  authors: Record<number, Author> = {}
-  genres: Record<number, Genre> = {}
-  error: string | null = null
+
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private bookstoreService: BookstoreService
+
+  ) { }
 
   ngOnInit(): void {
-    this.loadBooks()
-    this.loadAuthors()
-    this.loadGenres()
+    this.activatedRoute.paramMap.subscribe(params => {
+      const page = params.get('page')
+      this.currentPage = page ? +page : 1
+      this.loadBooks()
+      this.loadAuthorsAndGenres()
+    })
   }
 
   loadBooks(url?: string): void {
     this.error = null
-    this.booksService.getBooks(url).subscribe({
+    const apiUrl = url || `${this.bookstoreService.apiBaseUrl}/books/?page=${this.currentPage}`
+    this.bookstoreService.getBooks(apiUrl).subscribe({
       next: (response) => {
         this.pageBooks = response
       },
@@ -37,55 +49,80 @@ export class BooksComponent implements OnInit {
     })
   }
 
-  loadAuthors(): void {
-    this.booksService.getAuthors().subscribe((page) => {
-      this.authors = page.result.reduce((acc, author) => {
-        acc[author.id!] = author
-        return acc
-      }, {} as Record<number, Author>)
+  loadAuthorsAndGenres(): void {
+    const authors$ = this.bookstoreService.getAuthors().pipe(
+      switchMap(firstPage =>
+        this.bookstoreService.getAllAuthors(firstPage.total_items)
+      ),
+      map(fullList =>
+        fullList.reduce((acc, author) => {
+          if (author.id !== undefined) acc[author.id] = author
+          return acc
+        }, {} as Record<number, Author>)
+      ),
+      catchError(err => {
+        console.error('Error fetching all authors:', err)
+        return of({})
+      })
+    )
+
+    const genres$ = this.bookstoreService.getGenres().pipe(
+      switchMap(firstPage =>
+        this.bookstoreService.getAllGenres(firstPage.total_items)
+      ),
+      map(fullList =>
+        fullList.reduce((acc, genre) => {
+          if (genre.id !== undefined) acc[genre.id] = genre
+          return acc
+        }, {} as Record<number, Genre>)
+      ),
+      catchError(err => {
+        console.error('Error fetching all genres:', err)
+        return of({})
+      })
+    )
+
+    forkJoin({ authors: authors$, genres: genres$ }).subscribe({
+      next: ({ authors, genres }) => {
+        this.authors = authors
+        this.genres = genres
+      },
+      error: err => console.error('Error fetching data:', err)
     })
   }
 
-  loadGenres(): void {
-    this.booksService.getGenres().subscribe((page) => {
-      this.genres = page.result.reduce((acc, genre) => {
-        acc[genre.id!] = genre
-        return acc
-      }, {} as Record<number, Genre>)
-    })
+  getAuthorNames(book: Book): string {
+    return book.author
+      .map(authorId => this.authors[authorId]?.first_name + ' ' + this.authors[authorId]?.second_name || 'Unknown')
+      .join(', ')
   }
 
-  getAuthor(book: Book): string {
-    if (!book.author.length) return 'Unknown'
-
-    const authorNames = book.author.map(authorId =>
-      this.authors[authorId]
-        ? `${this.authors[authorId].first_name} ${this.authors[authorId].second_name}`
-        : null
-    ).filter(Boolean)
-
-    return authorNames.length ? authorNames.join(', ') : 'Unknown'
-  }
-
-  getGenres(book: Book): string {
-    if (!book.genres.length) return 'Unknown'
-
-    const genreTitles = book.genres.map(genreId =>
-      this.genres[genreId]?.title || null
-    ).filter(Boolean)
-
-    return genreTitles.length ? genreTitles.join(', ') : 'Unknown'
+  getGenreTitles(book: Book): string {
+    return book.genres
+      .map(genreId => this.genres[genreId]?.title || 'Unknown')
+      .join(', ')
   }
 
   loadNextPage(): void {
     if (this.pageBooks?.links.next) {
-      this.loadBooks(this.pageBooks.links.next)
+      const nextPage = this.currentPage + 1
+      this.router.navigate([`/books/${nextPage}`])
     }
   }
 
   loadPrevPage(): void {
     if (this.pageBooks?.links.previous) {
-      this.loadBooks(this.pageBooks.links.previous)
+      const prevPage = this.currentPage - 1
+      this.router.navigate([`/books/${prevPage}`])
     }
+  }
+
+  deleteBook(bookID: number): void {
+    this.bookstoreService.deleteBook(bookID).subscribe({
+      next: () => {
+        console.log(`Book ${bookID} deleted successfully.`)
+        this.loadBooks()
+      }
+    })
   }
 }

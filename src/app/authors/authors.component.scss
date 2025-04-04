@@ -7,7 +7,7 @@
   list-style: none;
 }
 
-.author-form {
+.author-form{
   width: max-content;
   display: flex;
   flex-direction: column;
@@ -29,15 +29,17 @@
     border-radius: 5px;
     padding: 5px;
   }
-
 }
 
 .author-card {
+  display: flex;
+  gap: 5px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 20px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+
 
   &:hover {
     transform: translateY(-5px);

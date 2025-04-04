@@ -5,9 +5,10 @@
         </h3>
         <h2>Authors</h2>
         @if (pageAuthors){
-            <div class="pagination-info">
-                Всего авторов: {{ pageAuthors.total_items }}
-            </div>
+          <div class="pagination-info">
+            Page {{ pageAuthors.page }} of {{ pageAuthors.total_pages }}
+            (Total: {{ pageAuthors.total_items }} authors)
+          </div>
         }
     </div>
 
@@ -26,19 +27,42 @@
                     placeholder="Last name"
                     required
             />
-            <button type="submit" [disabled]="authorForm.invalid">Add Author</button>
+            <button  type="submit" [disabled]="authorForm.invalid">Add Author</button>
         </form>
     </div>
 
     @if (pageAuthors) {
-        <ul class="author-list">
-            @for (author of pageAuthors.result; track author.id) {
-                <li class="author-card">
-                    <h3 class="author-name first-name">First name: {{ author.first_name }}</h3>
-                    <h3 class="author-name last-name">Last name: {{ author.second_name }}</h3>
-                </li>
+      <ul class="author-list">
+        @for (author of pageAuthors.result; track author.id) {
+          <li class="author-card">
+            @if (editingAuthorId !== author.id) {
+              <div class="author-info">
+                <h3>First name: {{ author.first_name }}</h3>
+                <h3>Last name: {{ author.second_name }}</h3>
+              </div>
+              <div class="author-actions">
+                <button (click)="startEditing(author)" class="edit-button">Edit</button>
+                <button (click)="deleteAuthor(author.id!)" class="delete-button">X</button>
+              </div>
+            } @else {
+              <form [formGroup]="editForm" (ngSubmit)="saveAuthor(author.id!)" class="edit-form">
+                <div class="form-group">
+                  <label>First name:</label>
+                  <input formControlName="first_name" type="text">
+                </div>
+                <div class="form-group">
+                  <label>Last name:</label>
+                  <input formControlName="second_name" type="text">
+                </div>
+                <div class="form-actions">
+                  <button type="submit" [disabled]="editForm.invalid" class="save-button">Save</button>
+                  <button type="button" (click)="cancelEditing()" class="cancel-button">Cancel</button>
+                </div>
+              </form>
             }
-        </ul>
+          </li>
+        }
+      </ul>
 
         <div class="pagination-controls">
             <button

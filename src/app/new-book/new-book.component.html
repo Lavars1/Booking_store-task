@@ -1,0 +1,45 @@
+<div class="container">
+  <a routerLink="">to Main page</a>
+  <h2>Book create</h2>
+  <form class="new-book-form" [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+    <label>Название книги</label>
+    <input formControlName="title" type="text"/>
+
+    <label>Описание</label>
+    <textarea formControlName="description"></textarea>
+
+    <label>Цена</label>
+    <input formControlName="price" type="number"/>
+
+    <label>Количество на складе</label>
+    <input formControlName="in_stock" type="number"/>
+
+    <label>Автор(ы)</label>
+    <select formControlName="author" multiple required>
+      @for (author of authorsList; track author.id){
+      <option [value]="author.id">
+        {{ author.first_name }} {{ author.second_name }}
+      </option>
+      }
+    </select>
+
+    <label>Жанры</label>
+    <select formControlName="genres" required>
+      @for (genre of genresList; track genre.id){
+        <option [value]="genre.id">
+        {{ genre.title }}
+      </option>
+      }
+    </select>
+
+
+
+    <label>Дата выпуска</label>
+    <input formControlName="release_date" type="date"/>
+
+    <label>Дата написания</label>
+    <input formControlName="writing_date" type="date"/>
+
+    <button type="submit" [disabled]="bookForm.invalid">Создать книгу</button>
+  </form>
+</div>

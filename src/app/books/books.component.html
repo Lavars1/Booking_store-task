@@ -22,18 +22,23 @@
     <div class="book-list">
       @for (book of pageBooks.result; track book.id) {
         <div class="book-card">
-          <h3>{{ book.title }}</h3>
-          <div class="book-details">
-            <span class="price">{{ book.price | currency }}</span>
-            <span class="stock" [class.low-stock]="(book.in_stock ?? 0) < 10">
+          <div>
+            <h3>{{ book.title }}</h3>
+            <div class="book-details">
+              <span class="price">{{ book.price | currency }}</span>
+              <span class="stock" [class.low-stock]="(book.in_stock ?? 0) < 10">
               Stock: {{ book.in_stock ?? 0 }}
             </span>
+            </div>
+            <p class="release-date">Released: {{ book.release_date | date }}</p>
+            <p class="description">{{ book.description }}</p>
+            <p class="author">Author: {{ getAuthorNames(book) }}
+            <p class="genres">Genres: {{ getGenreTitles(book) }}
           </div>
-          <p class="release-date">Released: {{ book.release_date | date }}</p>
-          <p class="description">{{ book.description }}</p>
-          <p class="author">Author: {{ getAuthor(book) }}</p>
-          <p class="genres">Genres: {{ getGenres(book) }}</p>
+          <button (click)="deleteBook(book.id!)" class="delete-button" >X</button>
+
         </div>
+
       }
     </div>
 

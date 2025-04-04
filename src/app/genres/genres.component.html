@@ -13,7 +13,7 @@
   </div>
 
   <div class="genre-form">
-    <h3>Add New Genre</h3>
+    <span>Add New Genre</span>
     <form [formGroup]="genreForm" (ngSubmit)="addGenre()">
       <input
         type="text"
@@ -40,11 +40,38 @@
     <ul class="genre-list">
       @for (genre of pageGenres.result; track genre.id) {
         <li class="genre-item">
-          <h3 class="genre-title">Title: {{ genre.title }}</h3>
-          <p class="genre-description">Description: {{ genre.description }}</p>
-          <span class="genre-discount" [class.no-discount]="genre.discount === 0">
-            Discount: {{ genre.discount }}%
-          </span>
+          @if (editingGenreId !== genre.id) {
+            <div>
+              <div style="margin-bottom: 10px">
+                <h3 class="genre-title">Title: {{ genre.title }}</h3>
+                <p class="genre-description">Description: {{ genre.description }}</p>
+                <span class="genre-discount" [class.no-discount]="genre.discount === 0">
+                  Discount: {{ genre.discount }}%
+                </span>
+              </div>
+                <button (click)="startEditing(genre)" class="edit-button">Edit</button>
+                <button class="delete-button" (click)="deleteGenre(genre.id!)">X</button>
+            </div>
+          } @else {
+            <form [formGroup]="editForm" (ngSubmit)="saveGenre(genre.id!)" class="edit-form">
+              <div class="form-group">
+                <label>Title:</label>
+                <input formControlName="title" type="text">
+              </div>
+              <div class="form-group">
+                <label>Description:</label>
+                <input formControlName="description" type="text">
+              </div>
+              <div class="form-group">
+                <label>Discount:</label>
+                <input formControlName="discount" type="number" min="0" max="100">
+              </div>
+              <div class="form-actions">
+                <button type="submit" [disabled]="editForm.invalid" class="save-button">Save</button>
+                <button type="button" (click)="cancelEditing()" class="cancel-button">Cancel</button>
+              </div>
+            </form>
+          }
         </li>
       }
     </ul>

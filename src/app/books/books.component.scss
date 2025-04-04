@@ -1,6 +1,3 @@
-
-
-
 .error-message {
   background-color: #f8d7da;
   color: #721c24;
@@ -20,6 +17,8 @@
 }
 
 .book-card {
+  display: flex;
+  align-items: start;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
